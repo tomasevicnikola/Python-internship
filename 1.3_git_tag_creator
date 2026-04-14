@@ -1,0 +1,61 @@
+import sys
+import subprocess
+
+
+def get_tags():
+    output = subprocess.check_output(
+        ["git", "tag"],
+        text=True
+    ).strip()
+
+    if output:
+        return output.splitlines()
+
+    return []
+
+
+def get_next_version(tags):
+    rc_tags = []
+
+    for tag in tags:
+        if tag.startswith("rc/"):
+            rc_tags.append(tag)
+
+    if rc_tags:
+        last_tag = rc_tags[-1]
+        version = last_tag.split("/")[1]
+        x, y, z = map(int, version.split("."))
+        y += 1
+    else:
+        x, y, z = 1, 0, 0
+
+    return x, y, z
+
+
+def create_git_tag(tag_name):
+    subprocess.run(
+        ["git", "tag", tag_name, "main"],
+        check=True
+    )
+
+
+def main():
+    create_release = "--create-release" in sys.argv
+
+    tags = get_tags()
+    x, y, z = get_next_version(tags)
+
+    rc_tag = f"rc/{x}.{y}.{z}"
+    create_git_tag(rc_tag)
+
+    print(f"Created RC tag: {rc_tag}")
+
+    if create_release:
+        release_tag = f"{x}.{y}.{z}"
+        create_git_tag(release_tag)
+
+        print(f"Created release tag: {release_tag}")
+
+
+if __name__ == "__main__":
+    main()
