@@ -216,3 +216,39 @@ def cancel_order(order_id):
             "status": new_status,
         },
     }, 200
+
+def admin_cancel_order(order_id):
+    db = get_db()
+
+    order = db.execute(
+        """
+        SELECT id, status
+        FROM orders
+        WHERE id = ?
+        """,
+        (order_id,),
+    ).fetchone()
+
+    if order is None:
+        return {"error": f"Order with id {order_id} was not found."}, 404
+
+    if order["status"] == "cancelled":
+        return {"error": "Order is already cancelled."}, 400
+
+    db.execute(
+        """
+        UPDATE orders
+        SET status = ?
+        WHERE id = ?
+        """,
+        ("cancelled", order_id),
+    )
+    db.commit()
+
+    return {
+        "message": "Order cancelled successfully by admin.",
+        "order": {
+            "id": order_id,
+            "status": "cancelled",
+        },
+    }, 200
