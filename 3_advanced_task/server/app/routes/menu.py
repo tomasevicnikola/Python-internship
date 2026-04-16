@@ -7,6 +7,28 @@ menu_bp = Blueprint("menu", __name__)
 
 @menu_bp.get("/menu")
 def list_menu():
+    """
+    Get pizza menu
+    ---
+    tags:
+      - Customer
+    responses:
+      200:
+        description: List of available pizzas
+        schema:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+              name:
+                type: string
+              price:
+                type: number
+              is_available:
+                type: boolean
+    """
     db = get_db()
 
     pizzas = db.execute(
