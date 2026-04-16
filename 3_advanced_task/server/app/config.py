@@ -6,4 +6,7 @@ class Config:
     INSTANCE_DIR = os.path.join(BASE_DIR, "instance")
     DATABASE_PATH = os.path.join(INSTANCE_DIR, "pizza.sqlite3")
 
-    ADMIN_TOKEN = os.getenv("ADMIN_TOKEN", "super-secret-admin-token")
+    ADMIN_TOKEN = os.getenv("ADMIN_TOKEN")
+
+    if not ADMIN_TOKEN:
+        raise ValueError("ADMIN_TOKEN environment variable is not set.")
