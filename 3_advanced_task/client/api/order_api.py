@@ -10,3 +10,7 @@ def create_order(payload):
 def get_order(order_id):
     response = requests.get(f"{BASE_URL}/order/{order_id}", timeout=5)
     return response
+
+def cancel_order(order_id):
+    response = requests.delete(f"{BASE_URL}/order/{order_id}", timeout=5)
+    return response

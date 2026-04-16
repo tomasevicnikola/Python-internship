@@ -1,7 +1,7 @@
 import sys
 import requests
 
-from api.order_api import create_order, get_order
+from api.order_api import create_order, get_order, cancel_order
 
 def parse_items(raw_items):
     items = []
@@ -118,3 +118,27 @@ def handle_get_order(order_id):
             f"- Pizza ID {item['pizza_id']} ({item['pizza_name']}) x{item['quantity']} "
             f"@ ${item['unit_price']:.2f}"
         )
+
+def handle_cancel_order(order_id):
+    try:
+        response = cancel_order(order_id)
+    except requests.RequestException as exc:
+        print(f"Request failed: {exc}")
+        sys.exit(1)
+
+    if response.status_code != 200:
+        try:
+            error_body = response.json()
+        except ValueError:
+            print(f"Error: {response.status_code} - {response.text}")
+            sys.exit(1)
+
+        print(f"Error: {response.status_code} - {error_body}")
+        sys.exit(1)
+
+    body = response.json()
+    order = body["order"]
+
+    print(body["message"])
+    print(f"Order ID: {order['id']}")
+    print(f"Status: {order['status']}")

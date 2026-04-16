@@ -1,6 +1,10 @@
 import argparse
 from commands.menu_commands import handle_list_menu
-from commands.order_commands import handle_create_order, handle_get_order
+from commands.order_commands import (
+    handle_cancel_order,
+    handle_create_order,
+    handle_get_order,
+)
 
 
 def build_parser():
@@ -22,6 +26,9 @@ def build_parser():
     status_parser = subparsers.add_parser("get-order", help="Get order by ID")
     status_parser.add_argument("--order-id", type=int, required=True, help="Order ID")
 
+    cancel_parser = subparsers.add_parser("cancel-order", help="Cancel order by ID")
+    cancel_parser.add_argument("--order-id", type=int, required=True, help="Order ID")
+
     return parser
 
 
@@ -35,6 +42,8 @@ def main():
         handle_create_order(args.customer_name, args.address, args.item)
     elif args.command == "get-order":
         handle_get_order(args.order_id)
+    elif args.command == "cancel-order":
+        handle_cancel_order(args.order_id)
 
 
 if __name__ == "__main__":
