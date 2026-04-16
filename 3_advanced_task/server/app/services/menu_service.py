@@ -74,3 +74,34 @@ def add_pizza(data):
         },
         201,
     )
+def delete_pizza(pizza_id):
+    db = get_db()
+
+    pizza = db.execute(
+        """
+        SELECT id, name
+        FROM pizzas
+        WHERE id = ?
+        """,
+        (pizza_id,),
+    ).fetchone()
+
+    if pizza is None:
+        return {"error": f"Pizza with id {pizza_id} was not found."}, 404
+
+    db.execute(
+        """
+        DELETE FROM pizzas
+        WHERE id = ?
+        """,
+        (pizza_id,),
+    )
+    db.commit()
+
+    return {
+        "message": "Pizza deleted successfully.",
+        "pizza": {
+            "id": pizza["id"],
+            "name": pizza["name"],
+        },
+    }, 200
