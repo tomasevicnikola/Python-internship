@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 
-from app.services.order_service import create_order, get_order_by_id
+from app.services.order_service import create_order, get_order_by_id, cancel_order
 
 
 order_bp = Blueprint("order", __name__)
@@ -78,3 +78,26 @@ def get_order_route(order_id):
     response_body, status_code = get_order_by_id(order_id)
     return jsonify(response_body), status_code
 
+@order_bp.delete("/order/<int:order_id>")
+def cancel_order_route(order_id):
+    """
+    Cancel an order
+    ---
+    tags:
+      - Customer
+    parameters:
+      - in: path
+        name: order_id
+        type: integer
+        required: true
+        description: Order ID
+    responses:
+      200:
+        description: Order cancelled successfully
+      400:
+        description: Order cannot be cancelled in current status
+      404:
+        description: Order not found
+    """
+    response_body, status_code = cancel_order(order_id)
+    return jsonify(response_body), status_code

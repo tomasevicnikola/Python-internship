@@ -173,3 +173,46 @@ def get_order_by_id(order_id):
         200,
     )
 
+def cancel_order(order_id):
+    db = get_db()
+
+    order = db.execute(
+        """
+        SELECT id, status
+        FROM orders
+        WHERE id = ?
+        """,
+        (order_id,),
+    ).fetchone()
+
+    if order is None:
+        return {"error": f"Order with id {order_id} was not found."}, 404
+
+    current_status = order["status"]
+
+    forbidden_statuses = {"ready_to_be_delivered", "delivered", "cancelled"}
+
+    if current_status in forbidden_statuses:
+        return {
+            "error": f"Order cannot be cancelled because its status is '{current_status}'."
+        }, 400
+
+    new_status = "cancelled"
+
+    db.execute(
+        """
+        UPDATE orders
+        SET status = ?
+        WHERE id = ?
+        """,
+        (new_status, order_id),
+    )
+    db.commit()
+
+    return {
+        "message": "Order cancelled successfully.",
+        "order": {
+            "id": order_id,
+            "status": new_status,
+        },
+    }, 200
