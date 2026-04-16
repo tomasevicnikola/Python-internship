@@ -110,3 +110,66 @@ def create_order(data):
         },
         201,
     )
+
+def get_order_by_id(order_id):
+    db = get_db()
+
+    order = db.execute(
+        """
+        SELECT id, customer_name, address, status, created_at
+        FROM orders
+        WHERE id = ?
+        """,
+        (order_id,),
+    ).fetchone()
+
+    if order is None:
+        return {"error": f"Order with id {order_id} was not found."}, 404
+
+    items = db.execute(
+        """
+        SELECT
+            oi.pizza_id,
+            p.name AS pizza_name,
+            oi.quantity,
+            oi.price_at_order_time
+        FROM order_items oi
+        JOIN pizzas p ON p.id = oi.pizza_id
+        WHERE oi.order_id = ?
+        ORDER BY oi.id
+        """,
+        (order_id,),
+    ).fetchall()
+
+    serialized_items = []
+    total_price = 0.0
+
+    for item in items:
+        unit_price = float(item["price_at_order_time"])
+        quantity = item["quantity"]
+        total_price += unit_price * quantity
+
+        serialized_items.append(
+            {
+                "pizza_id": item["pizza_id"],
+                "pizza_name": item["pizza_name"],
+                "quantity": quantity,
+                "unit_price": unit_price,
+            }
+        )
+
+    return (
+        {
+            "order": {
+                "id": order["id"],
+                "customer_name": order["customer_name"],
+                "address": order["address"],
+                "status": order["status"],
+                "created_at": order["created_at"],
+                "total_price": round(total_price, 2),
+                "items": serialized_items,
+            }
+        },
+        200,
+    )
+

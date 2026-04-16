@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request
 
-from app.services.order_service import create_order
+from app.services.order_service import create_order, get_order_by_id
+
 
 order_bp = Blueprint("order", __name__)
 
@@ -54,3 +55,26 @@ def create_order_route():
     data = request.get_json(silent=True)
     response_body, status_code = create_order(data)
     return jsonify(response_body), status_code
+
+@order_bp.get("/order/<int:order_id>")
+def get_order_route(order_id):
+    """
+    Get order status by ID
+    ---
+    tags:
+      - Customer
+    parameters:
+      - in: path
+        name: order_id
+        type: integer
+        required: true
+        description: Order ID
+    responses:
+      200:
+        description: Order retrieved successfully
+      404:
+        description: Order not found
+    """
+    response_body, status_code = get_order_by_id(order_id)
+    return jsonify(response_body), status_code
+
