@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify
 
-from app.db import get_db
+from app.services.menu_service import get_menu
 
 menu_bp = Blueprint("menu", __name__)
 
@@ -29,25 +29,4 @@ def list_menu():
               is_available:
                 type: boolean
     """
-    db = get_db()
-
-    pizzas = db.execute(
-        """
-        SELECT id, name, price, is_available
-        FROM pizzas
-        ORDER BY id
-        """
-    ).fetchall()
-
-    result = []
-    for pizza in pizzas:
-        result.append(
-            {
-                "id": pizza["id"],
-                "name": pizza["name"],
-                "price": pizza["price"],
-                "is_available": bool(pizza["is_available"]),
-            }
-        )
-
-    return jsonify(result), 200
+    return jsonify(get_menu()), 200
