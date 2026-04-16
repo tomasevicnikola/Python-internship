@@ -1,0 +1,20 @@
+{
+  "Internship Survey": {
+    "Main Page": {
+      "Internship Rating": {
+        "Description": "How do you rate the internship overall?",
+        "Answers": ["Excellent", "Good", "Average"]
+      },
+      "Mentor Support": {
+        "Description": "How helpful was your mentor during the internship?",
+        "Answers": ["Very helpful", "Helpful", "Not helpful"]
+      }
+    },
+    "Final Feedback page": {
+      "Recommendation": {
+        "Description": "Would you recommend this internship to others?",
+        "Answers": ["Yes", "Maybe", "No"]
+      }
+    }
+  }
+}
