@@ -2,6 +2,7 @@ from flask import Flask
 
 from app.config import Config
 from app.db import init_app as init_db_app
+from app.routes.menu import menu_bp
 
 
 def create_app():
@@ -9,5 +10,7 @@ def create_app():
     app.config.from_object(Config)
 
     init_db_app(app)
+
+    app.register_blueprint(menu_bp)
 
     return app
