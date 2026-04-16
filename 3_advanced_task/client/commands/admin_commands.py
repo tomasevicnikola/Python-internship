@@ -1,7 +1,7 @@
 import sys
 import requests
 
-from api.admin_api import add_pizza, delete_pizza
+from api.admin_api import add_pizza, delete_pizza, force_cancel_order
 
 
 def parse_bool(value):
@@ -77,3 +77,27 @@ def handle_delete_pizza(token, pizza_id):
     print(body["message"])
     print(f"Pizza ID: {pizza['id']}")
     print(f"Name: {pizza['name']}")
+
+def handle_force_cancel_order(token, order_id):
+    try:
+        response = force_cancel_order(token, order_id)
+    except requests.RequestException as exc:
+        print(f"Request failed: {exc}")
+        sys.exit(1)
+
+    if response.status_code != 200:
+        try:
+            error_body = response.json()
+        except ValueError:
+            print(f"Error: {response.status_code} - {response.text}")
+            sys.exit(1)
+
+        print(f"Error: {response.status_code} - {error_body}")
+        sys.exit(1)
+
+    body = response.json()
+    order = body["order"]
+
+    print(body["message"])
+    print(f"Order ID: {order['id']}")
+    print(f"Status: {order['status']}")

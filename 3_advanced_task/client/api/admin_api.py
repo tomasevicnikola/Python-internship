@@ -21,3 +21,15 @@ def delete_pizza(token, pizza_id):
         timeout=5,
     )
     return response
+
+
+def force_cancel_order(token, order_id):
+    headers = {
+        "Authorization": f"Bearer {token}"
+    }
+    response = requests.delete(
+        f"{BASE_URL}/admin/order/{order_id}",
+        headers=headers,
+        timeout=5,
+    )
+    return response

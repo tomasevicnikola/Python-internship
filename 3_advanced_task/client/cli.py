@@ -1,5 +1,9 @@
 import argparse
-from commands.admin_commands import handle_add_pizza, handle_delete_pizza
+from commands.admin_commands import (
+    handle_add_pizza,
+    handle_delete_pizza,
+    handle_force_cancel_order,
+)
 from commands.menu_commands import handle_list_menu
 from commands.order_commands import (
     handle_cancel_order,
@@ -47,6 +51,13 @@ def build_parser():
     delete_pizza_parser.add_argument("--token", required=True, help="Admin token")
     delete_pizza_parser.add_argument("--pizza-id", type=int, required=True, help="Pizza ID")
 
+    force_cancel_parser = subparsers.add_parser(
+        "admin-cancel-order",
+        help="Force-cancel order (admin)",
+    )
+    force_cancel_parser.add_argument("--token", required=True, help="Admin token")
+    force_cancel_parser.add_argument("--order-id", type=int, required=True, help="Order ID")
+
     return parser
 
 
@@ -66,6 +77,8 @@ def main():
         handle_add_pizza(args.token, args.name, args.price, args.is_available)
     elif args.command == "delete-pizza":
         handle_delete_pizza(args.token, args.pizza_id)
+    elif args.command == "admin-cancel-order":
+        handle_force_cancel_order(args.token, args.order_id)
 
 
 if __name__ == "__main__":
