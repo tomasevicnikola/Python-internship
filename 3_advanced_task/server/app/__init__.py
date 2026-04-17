@@ -6,6 +6,7 @@ from app.db import init_app as init_db_app
 from app.routes.admin import admin_bp
 from app.routes.menu import menu_bp
 from app.routes.order import order_bp
+from app.routes.user import user_bp
 
 
 def create_app():
@@ -50,5 +51,6 @@ def create_app():
     app.register_blueprint(menu_bp)
     app.register_blueprint(order_bp)
     app.register_blueprint(admin_bp)
+    app.register_blueprint(user_bp)
 
     return app
