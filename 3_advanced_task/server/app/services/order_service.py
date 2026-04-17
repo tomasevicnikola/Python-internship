@@ -1,5 +1,7 @@
 from datetime import UTC, datetime
 
+from werkzeug.security import check_password_hash
+
 from app.db import get_db
 
 
@@ -7,20 +9,53 @@ def create_order(data):
     if not data:
         return {"error": "Request body must be valid JSON."}, 400
 
-    customer_name = data.get("customer_name")
-    address = data.get("address")
     items = data.get("items")
-
-    if not customer_name or not isinstance(customer_name, str):
-        return {"error": "customer_name is required and must be a string."}, 400
-
-    if not address or not isinstance(address, str):
-        return {"error": "address is required and must be a string."}, 400
 
     if not isinstance(items, list) or not items:
         return {"error": "items is required and must be a non-empty list."}, 400
 
-    db = get_db()
+    customer_name = None
+    address = None
+    user_id = None
+
+    username = data.get("username")
+    password = data.get("password")
+
+    if username is not None or password is not None:
+        if not username or not isinstance(username, str):
+            return {"error": "username is required and must be a string."}, 400
+
+        if not password or not isinstance(password, str):
+            return {"error": "password is required and must be a string."}, 400
+
+        db = get_db()
+
+        user = db.execute(
+            """
+            SELECT id, username, password_hash, address
+            FROM users
+            WHERE LOWER(username) = LOWER(?)
+            """,
+            (username.strip(),),
+        ).fetchone()
+
+        if user is None or not check_password_hash(user["password_hash"], password):
+            return {"error": "Invalid username or password."}, 401
+
+        user_id = user["id"]
+        customer_name = user["username"]
+        address = user["address"]
+    else:
+        customer_name = data.get("customer_name")
+        address = data.get("address")
+
+        if not customer_name or not isinstance(customer_name, str):
+            return {"error": "customer_name is required and must be a string."}, 400
+
+        if not address or not isinstance(address, str):
+            return {"error": "address is required and must be a string."}, 400
+
+        db = get_db()
 
     validated_items = []
     total_price = 0.0
@@ -71,10 +106,10 @@ def create_order(data):
 
     cursor = db.execute(
         """
-        INSERT INTO orders (customer_name, address, status, created_at)
-        VALUES (?, ?, ?, ?)
+        INSERT INTO orders (customer_name, address, status, created_at, user_id)
+        VALUES (?, ?, ?, ?, ?)
         """,
-        (customer_name, address, status, created_at),
+        (customer_name, address, status, created_at, user_id),
     )
 
     order_id = cursor.lastrowid
@@ -104,6 +139,7 @@ def create_order(data):
                 "address": address,
                 "status": status,
                 "created_at": created_at,
+                "user_id": user_id,
                 "total_price": round(total_price, 2),
                 "items": validated_items,
             },

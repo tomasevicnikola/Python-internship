@@ -19,10 +19,6 @@ def create_order_route():
         required: true
         schema:
           type: object
-          required:
-            - customer_name
-            - address
-            - items
           properties:
             customer_name:
               type: string
@@ -30,6 +26,12 @@ def create_order_route():
             address:
               type: string
               example: Novi Sad, Example Street 12
+            username:
+              type: string
+              example: nikola
+            password:
+              type: string
+              example: secret123
             items:
               type: array
               items:
@@ -44,11 +46,16 @@ def create_order_route():
                   quantity:
                     type: integer
                     example: 2
+        description: |
+          Guest order requires customer_name + address + items.
+          Registered user order requires username + password + items.
     responses:
       201:
         description: Order created successfully
       400:
         description: Invalid request data
+      401:
+        description: Invalid username or password
       404:
         description: Pizza not found
     """

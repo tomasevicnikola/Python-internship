@@ -98,3 +98,53 @@ def test_cancel_order_fails_if_already_cancelled(client):
     assert response.status_code == 400
     body = response.get_json()
     assert "error" in body
+
+def test_create_order_with_registered_user_reuses_address(client):
+    register_response = client.post(
+        "/register",
+        json={
+            "username": "nikola",
+            "password": "secret123",
+            "address": "Novi Sad, Saved Address 12",
+        },
+    )
+    assert register_response.status_code == 201
+
+    response = client.post(
+        "/order",
+        json={
+            "username": "nikola",
+            "password": "secret123",
+            "items": [{"pizza_id": 1, "quantity": 2}],
+        },
+    )
+
+    assert response.status_code == 201
+    body = response.get_json()
+    assert body["order"]["customer_name"] == "nikola"
+    assert body["order"]["address"] == "Novi Sad, Saved Address 12"
+    assert body["order"]["user_id"] is not None
+
+
+def test_create_order_with_registered_user_invalid_password_fails(client):
+    client.post(
+        "/register",
+        json={
+            "username": "nikola",
+            "password": "secret123",
+            "address": "Novi Sad, Saved Address 12",
+        },
+    )
+
+    response = client.post(
+        "/order",
+        json={
+            "username": "nikola",
+            "password": "wrongpass",
+            "items": [{"pizza_id": 1, "quantity": 1}],
+        },
+    )
+
+    assert response.status_code == 401
+    body = response.get_json()
+    assert "error" in body
