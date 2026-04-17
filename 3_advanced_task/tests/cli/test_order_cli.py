@@ -39,7 +39,7 @@ def test_handle_create_order_success(mock_create_order, capsys):
 
     captured = capsys.readouterr()
     assert "Order created successfully." in captured.out
-    assert "Order ID: 1" in captured.o
+    assert "Order ID: 1" in captured.out
 
 
 @patch("commands.order_commands.get_order")
