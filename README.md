@@ -27,6 +27,11 @@ A pizza ordering application built with Flask, SQLite, and a command-line client
 - Delete pizza (admin)
 - Force-cancel order (admin)
 
+### User Features
+- Register user with saved address
+- Store passwords securely using hashing
+- Reuse saved address when creating orders as a registered user
+
 ### Testing
 - Backend API tests with pytest
 - Mocked CLI tests with pytest
@@ -141,6 +146,12 @@ pip install -r requirements.txt
 | `GET` | `/order/<order_id>` | Check order status |
 | `DELETE` | `/order/<order_id>` | Cancel an order |
 
+### User
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/register` | Register a new user |
+
 ### Admin
 
 Requires header:
@@ -160,7 +171,19 @@ Authorization: Bearer <admin-token>
 
 ## Example API Requests
 
-### Create order
+### Register user
+
+`POST /register`
+
+```json
+{
+  "username": "nikola",
+  "password": "secret123",
+  "address": "Novi Sad, Example 12"
+}
+```
+
+### Create order as guest
 
 `POST /order`
 
@@ -174,6 +197,23 @@ Authorization: Bearer <admin-token>
   ]
 }
 ```
+
+### Create order as registered user
+
+`POST /order`
+
+```json
+{
+  "username": "nikola",
+  "password": "secret123",
+  "items": [
+    { "pizza_id": 1, "quantity": 2 },
+    { "pizza_id": 2, "quantity": 1 }
+  ]
+}
+```
+
+> The saved address from registration is used automatically — no need to pass `address`.
 
 ### Add pizza as admin
 
@@ -203,16 +243,36 @@ Run all commands from the `client/` folder.
 
 ### Customer commands
 
+**Register user:**
+
+```bash
+python cli.py register-user --username nikola --password secret123 --address "Novi Sad, Example 12"
+```
+
 **List menu:**
 
 ```bash
 python cli.py menu
 ```
 
-**Create order:**
+**Create order as guest:**
 
 ```bash
 python cli.py create-order --customer-name "Nikola" --address "Novi Sad, Example 12" --item 1:2 --item 2:1
+```
+
+**Create order as registered user** (uses saved address):
+
+First register:
+
+```bash
+python cli.py register-user --username nikola --password secret123 --address "Novi Sad, Saved Address 12"
+```
+
+Then create an order without passing address:
+
+```bash
+python cli.py create-order --username nikola --password secret123 --item 1:2
 ```
 
 **Get order:**
