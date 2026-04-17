@@ -4,6 +4,7 @@ from commands.admin_commands import (
     handle_delete_pizza,
     handle_force_cancel_order,
 )
+from commands.user_commands import handle_register_user
 from commands.menu_commands import handle_list_menu
 from commands.order_commands import (
     handle_cancel_order,
@@ -58,6 +59,15 @@ def build_parser():
     force_cancel_parser.add_argument("--token", required=True, help="Admin token")
     force_cancel_parser.add_argument("--order-id", type=int, required=True, help="Order ID")
 
+    register_user_parser = subparsers.add_parser(
+        "register-user",
+        help="Register a new user",
+    )
+    register_user_parser.add_argument("--username", required=True, help="Username")
+    register_user_parser.add_argument("--password", required=True, help="Password")
+    register_user_parser.add_argument("--address", required=True, help="Saved address")
+
+
     return parser
 
 
@@ -79,7 +89,8 @@ def main():
         handle_delete_pizza(args.token, args.pizza_id)
     elif args.command == "admin-cancel-order":
         handle_force_cancel_order(args.token, args.order_id)
-
+    elif args.command == "register-user":
+        handle_register_user(args.username, args.password, args.address)
 
 if __name__ == "__main__":
     main()
