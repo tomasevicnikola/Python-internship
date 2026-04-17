@@ -39,18 +39,41 @@ def parse_items(raw_items):
     return items
 
 
-def handle_create_order(customer_name, address, raw_items):
+def handle_create_order(
+    raw_items,
+    customer_name=None,
+    address=None,
+    username=None,
+    password=None,
+):
     try:
         items = parse_items(raw_items)
     except ValueError as exc:
         print(f"Error: {exc}")
         sys.exit(1)
 
-    payload = {
-        "customer_name": customer_name,
-        "address": address,
-        "items": items,
-    }
+    using_registered_user = username is not None or password is not None
+
+    if using_registered_user:
+        if not username or not password:
+            print("Error: Registered user order requires both --username and --password.")
+            sys.exit(1)
+
+        payload = {
+            "username": username,
+            "password": password,
+            "items": items,
+        }
+    else:
+        if not customer_name or not address:
+            print("Error: Guest order requires both --customer-name and --address.")
+            sys.exit(1)
+
+        payload = {
+            "customer_name": customer_name,
+            "address": address,
+            "items": items,
+        }
 
     try:
         response = create_order(payload)

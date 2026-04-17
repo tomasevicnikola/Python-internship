@@ -4,13 +4,13 @@ from commands.admin_commands import (
     handle_delete_pizza,
     handle_force_cancel_order,
 )
-from commands.user_commands import handle_register_user
 from commands.menu_commands import handle_list_menu
 from commands.order_commands import (
     handle_cancel_order,
     handle_create_order,
     handle_get_order,
 )
+from commands.user_commands import handle_register_user
 
 
 def build_parser():
@@ -20,8 +20,10 @@ def build_parser():
     subparsers.add_parser("menu", help="List pizza menu")
 
     order_parser = subparsers.add_parser("create-order", help="Create a new order")
-    order_parser.add_argument("--customer-name", required=True, help="Customer name")
-    order_parser.add_argument("--address", required=True, help="Delivery address")
+    order_parser.add_argument("--customer-name", help="Customer name for guest order")
+    order_parser.add_argument("--address", help="Delivery address for guest order")
+    order_parser.add_argument("--username", help="Registered username")
+    order_parser.add_argument("--password", help="Registered user password")
     order_parser.add_argument(
         "--item",
         action="append",
@@ -67,7 +69,6 @@ def build_parser():
     register_user_parser.add_argument("--password", required=True, help="Password")
     register_user_parser.add_argument("--address", required=True, help="Saved address")
 
-
     return parser
 
 
@@ -78,7 +79,13 @@ def main():
     if args.command == "menu":
         handle_list_menu()
     elif args.command == "create-order":
-        handle_create_order(args.customer_name, args.address, args.item)
+        handle_create_order(
+            raw_items=args.item,
+            customer_name=args.customer_name,
+            address=args.address,
+            username=args.username,
+            password=args.password,
+        )
     elif args.command == "get-order":
         handle_get_order(args.order_id)
     elif args.command == "cancel-order":
@@ -91,6 +98,7 @@ def main():
         handle_force_cancel_order(args.token, args.order_id)
     elif args.command == "register-user":
         handle_register_user(args.username, args.password, args.address)
+
 
 if __name__ == "__main__":
     main()
